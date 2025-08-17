@@ -44,7 +44,6 @@
 //! ```"{\"dpkg\":{\"Architecture\":\"amd64\",\"Version\":\"1.19.7ubuntu3\"}}"```
 //!
 
-
 //! # Package information fields
 //!
 //! Architecture

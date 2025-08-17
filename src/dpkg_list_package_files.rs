@@ -14,7 +14,7 @@ impl ListPackageFiles {
         ListPackageFiles { package_name_pattern, options: Some(options) }
     }
 
-    fn run(){
+    fn run() {
         todo!()
     }
 }

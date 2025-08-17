@@ -3,11 +3,11 @@ pub struct DpkgOptions {
 }
 
 impl DpkgOptions {
-    pub fn build(&self) -> String {
-        let mut arguments: String = "".to_string();
-        arguments = match &self.root_dir {
-            Some(root_dir) => format!("{} --root={}", arguments, root_dir),
-            _ => arguments,
+    pub fn build(&self) -> Vec<String> {
+        let mut arguments = Vec::new();
+        match &self.root_dir {
+            Some(root_dir) => arguments.push(format!("--root={}", root_dir)),
+            _ => {}
         };
         arguments
     }
@@ -15,7 +15,7 @@ impl DpkgOptions {
 
 impl DpkgOptions {
     pub fn new() -> DpkgOptions {
-        DpkgOptions{ root_dir: None }
+        DpkgOptions { root_dir: None }
     }
 
     pub fn set_root_dir(mut self, root_dir: String) -> Self {

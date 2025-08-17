@@ -12,8 +12,8 @@
 //!
 //!
 //! #### Map<String, Value>
-//! ```
-//! use dpkg_query_json::QueryFieldPackage;
+//!```
+//! use dpkg_query_json::query_field_package::QueryFieldPackage;
 //! let fields = vec![String::from("Package"),
 //! String::from("Version"),
 //! String::from("Architecture")];
@@ -31,8 +31,8 @@
 //!
 //!
 //!#### String
-//! ```
-//! use dpkg_query_json::QueryFieldPackage;
+//!```
+//! use dpkg_query_json::query_field_package::QueryFieldPackage;
 //! let fields = vec![String::from("Package"),
 //! String::from("Version"),
 //! String::from("Architecture")];
@@ -106,93 +106,7 @@
 //! Version
 //!
 
-
-use std::process::{Command};
-use std::io::{Error};
-use serde_json::{Value, Map, json};
-
-//#[derive(Debug)]
-pub struct QueryFieldPackage{
-    fields: Vec<String>,
-    packages: Vec<String>,
-    root_dir: Option<String>,
-}
-
-impl QueryFieldPackage{
-    pub fn new(fields: Vec<String>, packages: Vec<String>) -> Self{
-        QueryFieldPackage{
-            fields,
-            packages,
-            root_dir: None,
-        }
-    }
-
-    pub fn set_root_dir(&mut self, root_dir: Option<String>) {
-        self.root_dir = root_dir;
-    }
-
-    fn exec(&mut self) -> Result<String, Error> {
-
-        if self.fields.len() <= 1{
-            self.fields.clear();
-            self.fields = vec![String::from("Package"), String::from("Version")];
-        }
-
-        let mut command = String::from("dpkg-query -W");
-        if self.fields.len() > 0{
-            let mut modified_fields = Vec::with_capacity(29);
-            for str in self.fields.iter(){
-                modified_fields.push("${".to_owned() + &str + "}");
-            }
-            command.push_str(&format!(" -f '{}\t\n'", modified_fields.join("<==>")))
-        }
-
-        if self.root_dir.is_some() {
-            command.push_str(&format!(" --root={}", &self.root_dir.clone().unwrap())); // should i really clone it?
-        }
-
-        if self.packages.len() > 0{
-            command.push_str(&format!(" {}", self.packages.join(" ")))
-        }
-
-        match Command::new("sh")
-            .args(&["-c", command.as_str()])
-            .output(){
-            Ok(data) => {Ok(String::from_utf8_lossy(&data.stdout).to_string())}
-            Err(e) => Err(e)
-        }
-
-    }
-
-    fn parse_to_json(&mut self) -> Result<Map<String, Value>, Error> {
-        let mut data_json = Map::new();
-
-        for line in self.exec()?.split("\t\n"){
-            let mut d = Map::new();
-            let split_line = line.split("<==>").collect::<Vec<&str>>();
-            for (i,line) in split_line[1..].iter().enumerate(){
-                d.insert((self.fields[i + 1]).to_string(), json!(line));
-            }
-            &data_json.insert(split_line[0].to_string(), Value::from(d));
-        }
-
-        Ok(data_json)
-    }
-
-    pub fn json(mut self) -> Map<String, Value> {
-        self.parse_to_json().unwrap_or_else(|err|{
-            let mut x = Map::new();
-            x.insert(String::from("error"), Value::from(err.to_string()));
-            x
-        })
-    }
-
-    pub fn json_string(mut self) -> String {
-        serde_json::to_string(&self.parse_to_json().unwrap_or_else(|err|{
-            let mut x = Map::new();
-            x.insert(String::from("error"), Value::from(err.to_string()));
-            x
-        })).unwrap()
-    }
-
-}
+pub mod dpkg_options;
+pub mod query_field_package;
+pub mod dpkg_list_packages;
+pub mod dpkg_list_package_files;

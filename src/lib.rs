@@ -13,12 +13,12 @@
 //!
 //! #### Map<String, Value>
 //!```
-//! use dpkg_query_json::query_field_package::QueryFieldPackage;
+//! use dpkg_query_json::dpkg_list_packages::DpkgListPackages;
 //! let fields = vec![String::from("Package"),
 //! String::from("Version"),
 //! String::from("Architecture")];
 //! let packages = vec![String::from("dpkg")];
-//! QueryFieldPackage::new(fields, packages).json(); //Map<String, Value>
+//! DpkgListPackages::new(fields, packages).json(); //Map<String, Value>
 //!
 //! ```
 //!
@@ -32,12 +32,12 @@
 //!
 //!#### String
 //!```
-//! use dpkg_query_json::query_field_package::QueryFieldPackage;
+//! use dpkg_query_json::dpkg_list_packages::DpkgListPackages;
 //! let fields = vec![String::from("Package"),
 //! String::from("Version"),
 //! String::from("Architecture")];
 //! let packages = vec![String::from("dpkg")];
-//! QueryFieldPackage::new(fields, packages).json_string(); //String
+//! DpkgListPackages::new(fields, packages).json_string(); //String
 //!
 //! ```
 //!
@@ -106,6 +106,5 @@
 //!
 
 pub mod dpkg_options;
-pub mod query_field_package;
 pub mod dpkg_list_packages;
 pub mod dpkg_list_package_files;

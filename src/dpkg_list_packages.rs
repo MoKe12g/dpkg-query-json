@@ -1,22 +1,44 @@
-use std::process::Command;
 use crate::dpkg_options::DpkgOptions;
+use serde_json::{json, Map, Value};
+use std::io::Error;
+use std::process::Command;
 
-pub struct ListPackages {
-    package_name_pattern: String,
+//#[derive(Debug)]
+pub struct DpkgListPackages {
+    fields: Vec<String>,
+    packages: Vec<String>,
     options: Option<DpkgOptions>,
 }
 
-impl ListPackages {
-    pub fn new(package_name_pattern: String) -> ListPackages {
-        ListPackages { package_name_pattern, options: None }
+impl DpkgListPackages {
+    pub fn new(fields: Vec<String>, packages: Vec<String>) -> Self {
+        DpkgListPackages {
+            fields,
+            packages,
+            options: None,
+        }
     }
 
-    pub fn with_options(package_name_pattern: String, options: DpkgOptions) -> ListPackages {
-        ListPackages { package_name_pattern, options: Some(options) }
+    pub fn from_options(fields: Vec<String>, packages: Vec<String>, dpkg_options: DpkgOptions) -> Self {
+        DpkgListPackages {
+            fields,
+            packages,
+            options: Some(dpkg_options),
+        }
     }
 
-    fn run() {
-        /*let mut command = Command::new("dpkg-query");
+    pub fn set_options(&mut self, options: DpkgOptions) {
+        self.options = Some(options);
+    }
+
+    fn exec(&mut self) -> Result<String, Error> {
+        // set default fields if empty
+        if self.fields.len() <= 1 {
+            self.fields.clear();
+            self.fields = vec![String::from("Package"), String::from("Version")];
+        }
+
+        let mut command = Command::new("dpkg-query");
         command.arg("-W");
         if self.fields.len() > 0 {
             let mut modified_fields = Vec::with_capacity(29);
@@ -30,6 +52,47 @@ impl ListPackages {
         match &self.options {
             Some(options) => command.args(options.build()),
             _ => &mut command // TOOD: Why does that have to be here?
-        };*/
+        };
+
+        if self.packages.len() > 0 {
+            command.args(&self.packages);
+        }
+
+        println!("Executing {:?}", &command);
+        match command.output() {
+            Ok(data) => { Ok(String::from_utf8_lossy(&data.stdout).to_string()) }
+            Err(e) => Err(e)
+        }
+    }
+
+    fn parse_to_json(&mut self) -> Result<Map<String, Value>, Error> {
+        let mut data_json = Map::new();
+
+        for line in self.exec()?.split("\t\n") {
+            let mut d = Map::new();
+            let split_line = line.split("<==>").collect::<Vec<&str>>();
+            for (i, line) in split_line[1..].iter().enumerate() {
+                d.insert((self.fields[i + 1]).to_string(), json!(line));
+            }
+            &data_json.insert(split_line[0].to_string(), Value::from(d));
+        }
+
+        Ok(data_json)
+    }
+
+    pub fn json(mut self) -> Map<String, Value> {
+        self.parse_to_json().unwrap_or_else(|err| {
+            let mut x = Map::new();
+            x.insert(String::from("error"), Value::from(err.to_string()));
+            x
+        })
+    }
+
+    pub fn json_string(mut self) -> String {
+        serde_json::to_string(&self.parse_to_json().unwrap_or_else(|err| {
+            let mut x = Map::new();
+            x.insert(String::from("error"), Value::from(err.to_string()));
+            x
+        })).unwrap()
     }
 }

@@ -18,7 +18,7 @@
 //! String::from("Version"),
 //! String::from("Architecture")];
 //! let packages = vec![String::from("dpkg")];
-//! QueryFieldPackage::new(fields, packages, "/".to_string()).json(); //Map<String, Value>
+//! QueryFieldPackage::new(fields, packages).json(); //Map<String, Value>
 //!
 //! ```
 //!
@@ -37,7 +37,7 @@
 //! String::from("Version"),
 //! String::from("Architecture")];
 //! let packages = vec![String::from("dpkg")];
-//! QueryFieldPackage::new(fields, packages, "/".to_string()).json_string(); //String
+//! QueryFieldPackage::new(fields, packages).json_string(); //String
 //!
 //! ```
 //!

@@ -18,7 +18,7 @@
 //! String::from("Version"),
 //! String::from("Architecture")];
 //! let packages = vec![String::from("dpkg")];
-//! QueryFieldPackage::new(fields, packages).json(); //Map<String, Value>
+//! QueryFieldPackage::new(fields, packages, "/".to_string()).json(); //Map<String, Value>
 //!
 //! ```
 //!
@@ -37,7 +37,7 @@
 //! String::from("Version"),
 //! String::from("Architecture")];
 //! let packages = vec![String::from("dpkg")];
-//! QueryFieldPackage::new(fields, packages).json_string(); //String
+//! QueryFieldPackage::new(fields, packages, "/".to_string()).json_string(); //String
 //!
 //! ```
 //!
@@ -114,15 +114,21 @@ use serde_json::{Value, Map, json};
 //#[derive(Debug)]
 pub struct QueryFieldPackage{
     fields: Vec<String>,
-    packages: Vec<String>
+    packages: Vec<String>,
+    root_dir: Option<String>,
 }
 
 impl QueryFieldPackage{
     pub fn new(fields: Vec<String>, packages: Vec<String>) -> Self{
         QueryFieldPackage{
             fields,
-            packages
+            packages,
+            root_dir: None,
         }
+    }
+
+    pub fn set_root_dir(&mut self, root_dir: Option<String>) {
+        self.root_dir = root_dir;
     }
 
     fn exec(&mut self) -> Result<String, Error> {
@@ -139,6 +145,10 @@ impl QueryFieldPackage{
                 modified_fields.push("${".to_owned() + &str + "}");
             }
             command.push_str(&format!(" -f '{}\t\n'", modified_fields.join("<==>")))
+        }
+
+        if self.root_dir.is_some() {
+            command.push_str(&format!(" --root={}", &self.root_dir.clone().unwrap())); // should i really clone it?
         }
 
         if self.packages.len() > 0{

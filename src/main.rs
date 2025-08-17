@@ -14,7 +14,9 @@ fn main() {
 
     //let fields = Vec::new();
     //let packages = Vec::new();
-    let packages = vec!["dpkg".to_string()];
-    println!("{:?}",QueryFieldPackage::new(fields, packages).json_string());
+    let packages = vec!["nginx".to_string()];
+    let mut query = QueryFieldPackage::new(fields, packages);
+    //query.set_root_dir(Option::from("/home/quantenregen/Schreibtisch/test-bookworm/".to_string()));
+    println!("{:?}", query.json_string());
 
 }

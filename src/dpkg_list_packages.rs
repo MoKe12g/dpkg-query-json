@@ -27,8 +27,9 @@ impl DpkgListPackages {
         }
     }
 
-    pub fn set_options(&mut self, options: DpkgOptions) {
+    pub fn set_options(&mut self, options: DpkgOptions) -> &Self {
         self.options = Some(options);
+        self
     }
 
     fn exec(&mut self) -> Result<String, Error> {

@@ -68,11 +68,11 @@ impl DpkgListPackages {
     fn parse_to_json(&mut self) -> Result<Map<String, Value>, Error> {
         let mut data_json = Map::new();
 
-        for line in self.exec()?.split("\t\n") {
+        for line in self.exec()?.replace("''","").split("\t\n") {
             let mut d = Map::new();
             let split_line = line.split("<==>").collect::<Vec<&str>>();
             for (i, line) in split_line[1..].iter().enumerate() {
-                d.insert((self.fields[i + 1]).to_string(), json!(line));
+                d.insert(self.fields[i + 1].to_string(), json!(line));
             }
             &data_json.insert(split_line[0].to_string(), Value::from(d));
         }

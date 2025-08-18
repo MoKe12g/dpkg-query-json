@@ -2,14 +2,13 @@
 
 A crate for parsing “dpkg-query” in json.
 
-
 ## Examples
 
 ```rust
 use dpkg_query_json::QueryFieldPackage;
 let fields = vec![String::from("Package"),
-String::from("Version"),
-String::from("Architecture")];
+                  String::from("Version"),
+                  String::from("Architecture")];
 let packages = vec![String::from("dpkg")];
 QueryFieldPackage::new(fields, packages).json(); //Map<String, Value>
 
@@ -19,8 +18,8 @@ QueryFieldPackage::new(fields, packages).json(); //Map<String, Value>
 ```rust
 use dpkg_query_json::QueryFieldPackage;
 let fields = vec![String::from("Package"),
-String::from("Version"),
-String::from("Architecture")];
+                  String::from("Version"),
+                  String::from("Architecture")];
 let packages = vec![String::from("dpkg")];
 QueryFieldPackage::new(fields, packages).json_string(); //String
 

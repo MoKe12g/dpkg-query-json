@@ -29,7 +29,7 @@ impl ListPackageFiles {
 
         println!("Executing {:?}", &command);
         match command.output() {
-            Ok(data) => { Ok(String::from_utf8_lossy(&data.stdout).split("\n").filter(move |x| { !x.is_empty() }).map(|s| s.to_string()).collect()) }
+            Ok(data) => { Ok(String::from_utf8_lossy(&data.stdout).lines().map(|s| s.to_string()).collect()) }
             Err(e) => Err(e)
         }
     }
